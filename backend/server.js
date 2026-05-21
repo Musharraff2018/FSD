@@ -16,8 +16,9 @@ app.use(helmet());
 // Allow requests from your Vercel frontend (update this URL after deploy)
 const allowedOrigins = [
   'http://localhost:3000',
-  'http://127.0.0.1:5500',             // VS Code Live Server
-  process.env.FRONTEND_URL,            // e.g. https://your-app.vercel.app
+  'http://127.0.0.1:5500',
+  process.env.FRONTEND_URL,
+  'https://fsd-ten-delta.vercel.app/', // add your exact Vercel URL here
 ].filter(Boolean);
 
 app.use(cors({
