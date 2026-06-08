@@ -1,707 +1,390 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CSC300L Student Registration</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SEPLAT OpsView — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    :root {
+      --navy: #0b1c3d;
+      --navy-mid: #122554;
+      --navy-deep: #081530;
+      --green: #00a859;
+      --green-light: #00c96b;
+      --orange: #f5821f;
+      --red: #e03030;
+      --white: #ffffff;
+      --gray: #c8d4e8;
+      --text-muted: #8ca3c8;
+      --card-border: #1e3a6e;
     }
 
-    :root {
-      --bg: #f4f1ec;
-      --surface: #ffffff;
-      --border: #d6d0c8;
-      --accent: #2c5f2e;
-      --accent-light: #e8f0e9;
-      --text: #1a1a1a;
-      --text-muted: #6b6560;
-      --danger: #c0392b;
-      --success: #27ae60;
-      --shadow: 0 2px 12px rgba(0,0,0,0.08);
-      --radius: 8px;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
+      background: var(--navy-deep);
+      color: var(--white);
       font-family: 'DM Sans', sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
       min-height: 100vh;
-      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
     }
 
-    .page-wrapper {
-      max-width: 800px;
-      margin: 0 auto;
+    /* Animated background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,168,89,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,168,89,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      animation: gridMove 20s linear infinite;
+      pointer-events: none;
     }
 
-    /* Header */
-    .page-header {
-      margin-bottom: 32px;
-      padding-bottom: 20px;
-      border-bottom: 2px solid var(--accent);
+    @keyframes gridMove {
+      0% { background-position: 0 0; }
+      100% { background-position: 40px 40px; }
     }
 
-    .page-header h1 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 2rem;
-      color: var(--accent);
-      letter-spacing: -0.02em;
+    /* Glow orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      opacity: 0.12;
+    }
+    .orb-1 { width: 400px; height: 400px; background: var(--green); top: -100px; left: -100px; }
+    .orb-2 { width: 300px; height: 300px; background: #0055ff; bottom: -80px; right: -80px; }
+
+    /* Header bar */
+    .top-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--green), var(--green-light), transparent);
     }
 
-    .page-header p {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      margin-top: 4px;
-      font-weight: 300;
+    /* Login card */
+    .login-card {
+      background: rgba(18, 37, 84, 0.85);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 48px 44px;
+      width: 100%;
+      max-width: 420px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,168,89,0.1);
+      animation: cardIn 0.6s cubic-bezier(0.16,1,0.3,1) both;
+      position: relative;
+      z-index: 1;
     }
 
-    /* Card */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 32px;
-      box-shadow: var(--shadow);
-      margin-bottom: 32px;
-      animation: fadeUp 0.4s ease both;
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(24px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .card-title {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.15rem;
-      color: var(--text);
-      margin-bottom: 24px;
+    /* Logo */
+    .logo-area {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
+      margin-bottom: 8px;
     }
 
-    .card-title::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
+    .logo-icon {
+      width: 44px; height: 44px;
+      background: var(--green);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 0 20px rgba(0,168,89,0.4);
     }
 
-    /* Form Grid */
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px 20px;
+    .logo-text {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: 2px;
     }
 
+    .logo-text span { color: var(--green); }
+
+    .tagline {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 36px;
+      padding-left: 56px;
+    }
+
+    /* Form */
     .form-group {
       display: flex;
       flex-direction: column;
       gap: 6px;
-    }
-
-    .form-group.full-width {
-      grid-column: 1 / -1;
+      margin-bottom: 18px;
     }
 
     label {
-      font-size: 0.8rem;
-      font-weight: 600;
+      font-size: 0.72rem;
+      font-weight: 500;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 1.5px;
       color: var(--text-muted);
     }
 
-    input[type="text"],
-    input[type="email"],
-    input[type="password"] {
-      padding: 10px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
+    input {
+      padding: 12px 16px;
+      background: rgba(11,28,61,0.8);
+      border: 1.5px solid var(--card-border);
+      border-radius: 8px;
+      color: var(--white);
       font-family: 'DM Sans', sans-serif;
       font-size: 0.95rem;
-      color: var(--text);
-      background: var(--bg);
-      transition: border-color 0.2s, box-shadow 0.2s;
       outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    input[type="text"]:focus,
-    input[type="email"]:focus,
-    input[type="password"]:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(44, 95, 46, 0.12);
-      background: #fff;
+    input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(0,168,89,0.15);
     }
 
-    input[type="text"].error,
-    input[type="email"].error,
-    input[type="password"].error {
-      border-color: var(--danger);
-    }
+    input.error { border-color: var(--red); }
+
+    input::placeholder { color: rgba(140,163,200,0.5); }
 
     .error-msg {
-      font-size: 0.75rem;
-      color: var(--danger);
+      font-size: 0.72rem;
+      color: var(--red);
       display: none;
     }
+    .error-msg.visible { display: block; }
 
-    .error-msg.visible {
-      display: block;
-    }
-
-    /* Payment & Checkbox row */
-    .inline-row {
-      display: flex;
-      gap: 24px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .radio-label,
-    .checkbox-label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.9rem;
-      font-weight: 400;
-      text-transform: none;
-      letter-spacing: normal;
-      color: var(--text);
-      cursor: pointer;
-    }
-
-    input[type="radio"],
-    input[type="checkbox"] {
-      accent-color: var(--accent);
-      width: 16px;
-      height: 16px;
-      cursor: pointer;
-    }
-
-    /* Submit Button */
-    .btn-insert {
-      margin-top: 8px;
-      padding: 12px 32px;
-      background-color: var(--accent);
+    /* Submit */
+    .btn-login {
+      width: 100%;
+      padding: 13px;
+      background: var(--green);
       color: #fff;
       border: none;
-      border-radius: var(--radius);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.95rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
+      border-radius: 8px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
       cursor: pointer;
-      transition: background 0.2s, transform 0.15s;
+      margin-top: 8px;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
     }
 
-    .btn-insert:hover:not(:disabled) {
-      background-color: #234d25;
+    .btn-login:hover:not(:disabled) {
+      background: var(--green-light);
       transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(0,168,89,0.35);
     }
 
-    .btn-insert:active:not(:disabled) {
-      transform: translateY(0);
-    }
+    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    .btn-insert:disabled {
-      opacity: 0.65;
-      cursor: not-allowed;
-    }
-
-    /* Spinner */
     .spinner {
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(255,255,255,0.4);
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
       border-top-color: #fff;
       border-radius: 50%;
       animation: spin 0.6s linear infinite;
       display: none;
     }
-
     .spinner.visible { display: block; }
-
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Toast notification */
+    /* Register link */
+    .register-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .register-link a {
+      color: var(--green-light);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .register-link a:hover { text-decoration: underline; }
+
+    /* Toast */
     #toast {
       position: fixed;
-      bottom: 28px;
-      right: 28px;
+      bottom: 28px; right: 28px;
       padding: 12px 20px;
-      border-radius: var(--radius);
-      font-size: 0.875rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
       font-weight: 500;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
       opacity: 0;
       pointer-events: none;
       transform: translateY(8px);
       transition: opacity 0.3s, transform 0.3s;
       z-index: 999;
     }
+    #toast.success { background: var(--green); color: #fff; }
+    #toast.error   { background: var(--red); color: #fff; }
+    #toast.show    { opacity: 1; transform: translateY(0); pointer-events: auto; }
 
-    #toast.success { background: var(--accent); color: #fff; }
-    #toast.error   { background: var(--danger);  color: #fff; }
-
-    #toast.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* Loading overlay for table */
-    .table-loading {
-      text-align: center;
-      padding: 32px;
+    /* Security badge */
+    .security-note {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--card-border);
+      font-size: 0.7rem;
       color: var(--text-muted);
-      font-size: 0.9rem;
     }
 
-    /* Table Section */
-    .table-wrapper {
-      overflow-x: auto;
-    }
-
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      font-size: 0.875rem;
-    }
-
-    caption {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.05rem;
-      text-align: left;
-      padding: 0 0 12px 0;
-      color: var(--text);
-    }
-
-    th {
-      background-color: var(--accent);
-      color: #fff;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      padding: 12px 14px;
-      text-align: left;
-      white-space: nowrap;
-    }
-
-    th:first-child { border-radius: 6px 0 0 0; }
-    th:last-child  { border-radius: 0 6px 0 0; }
-
-    td {
-      padding: 11px 14px;
-      border-bottom: 1px solid var(--border);
-      color: var(--text);
-      vertical-align: middle;
-    }
-
-    tr:nth-child(odd) td {
-      background-color: var(--accent-light);
-    }
-
-    tr:hover td {
-      background-color: #ddeede;
-      transition: background 0.15s;
-    }
-
-    /* Delete button */
-    .btn-delete {
-      background: none;
-      border: 1px solid var(--danger);
-      color: var(--danger);
-      padding: 4px 10px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s, color 0.15s;
-    }
-
-    .btn-delete:hover {
-      background: var(--danger);
-      color: #fff;
-    }
-
-    /* Password masking badge */
-    .pw-mask {
-      color: var(--text-muted);
-      letter-spacing: 0.15em;
-    }
-
-    /* Terms badge */
-    .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-
-    .badge-yes { background: #d4edda; color: #155724; }
-    .badge-no  { background: #f8d7da; color: #721c24; }
-
-    /* Row entrance */
-    @keyframes rowIn {
-      from { opacity: 0; background-color: #c8e6c9; }
-      to   { opacity: 1; }
-    }
-
-    .new-row td {
-      animation: rowIn 0.5s ease both;
-    }
-
-    /* Empty state */
-    .empty-state {
-      text-align: center;
-      padding: 32px;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-
-    @media (max-width: 560px) {
-      .form-grid { grid-template-columns: 1fr; }
-      .form-group.full-width { grid-column: 1; }
-      .card { padding: 20px; }
-    }
+    .security-note span { color: var(--green); font-size: 0.8rem; }
   </style>
 </head>
-
 <body>
-  <div class="page-wrapper">
 
-    <div class="page-header">
-      <h1>Student Registration</h1>
-      <p>CSC300L — Fill in the form below to add a student record.</p>
-    </div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="top-bar"></div>
 
-    <!-- Form Card -->
-    <div class="card">
-      <div class="card-title">Student Details</div>
-      <form id="schoolForm" novalidate>
-        <div class="form-grid">
+<div class="login-card">
 
-          <div class="form-group">
-            <label for="fullname">Full Name</label>
-            <input id="fullname" type="text" name="fullname" placeholder="e.g. Musa Abubakar" />
-            <span class="error-msg" id="err-fullname">Name is required.</span>
-          </div>
+  <div class="logo-area">
+    <div class="logo-icon">⛽</div>
+    <div class="logo-text">SEPLAT <span>OpsView</span></div>
+  </div>
+  <div class="tagline">Field Operations Intelligence Platform</div>
 
-          <div class="form-group">
-            <label for="school">School</label>
-            <input id="school" type="text" name="School" placeholder="e.g. Baze University" />
-            <span class="error-msg" id="err-school">School is required.</span>
-          </div>
-
-          <div class="form-group">
-            <label for="level">Level</label>
-            <input id="level" type="text" name="level" placeholder="e.g. 300" />
-            <span class="error-msg" id="err-level">Level is required.</span>
-          </div>
-
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input id="email" type="email" name="email" placeholder="example@mail.com" />
-            <span class="error-msg" id="err-email">Enter a valid email.</span>
-          </div>
-
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input id="password" type="password" name="password" placeholder="••••••••" />
-            <span class="error-msg" id="err-password">Password must be at least 6 characters.</span>
-          </div>
-
-          <!-- Payment -->
-          <div class="form-group">
-            <label>Payment Method</label>
-            <div class="inline-row">
-              <label class="radio-label">
-                <input id="cashPayment" type="radio" name="paymentMethod" value="Cash" />
-                Cash
-              </label>
-              <label class="radio-label">
-                <input id="cardPayment" type="radio" name="paymentMethod" value="Card" />
-                Card
-              </label>
-            </div>
-            <span class="error-msg" id="err-payment">Select a payment method.</span>
-          </div>
-
-          <!-- Terms -->
-          <div class="form-group" style="justify-content: flex-end; padding-bottom: 4px;">
-            <label class="checkbox-label">
-              <input id="terms" type="checkbox" name="terms" />
-              I accept the Terms &amp; Conditions
-            </label>
-            <span class="error-msg" id="err-terms">You must accept the terms.</span>
-          </div>
-
-          <!-- Submit -->
-          <div class="form-group full-width">
-            <button id="submitButton" type="button" class="btn-insert">
-              <span class="spinner" id="spinner"></span>
-              Insert Record
-            </button>
-          </div>
-
-        </div>
-      </form>
-    </div>
-
-    <!-- Table Card -->
-    <div class="card">
-      <div class="table-wrapper">
-        <table id="schoolTable">
-          <caption>List of CSC300L Students</caption>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>School</th>
-              <th>Level</th>
-              <th>Email</th>
-              <th>Password</th>
-              <th>T&amp;C</th>
-              <th>Payment</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody">
-            <tr id="emptyRow">
-              <td colspan="9" class="table-loading">Loading records…</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
+  <div class="form-group">
+    <label for="email">Email Address</label>
+    <input id="email" type="email" placeholder="operator@seplat.com" />
+    <span class="error-msg" id="err-email">Enter a valid email address.</span>
   </div>
 
-  <!-- Toast -->
-  <div id="toast"></div>
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input id="password" type="password" placeholder="••••••••" />
+    <span class="error-msg" id="err-password">Password is required.</span>
+  </div>
 
-  <script>
-    // ─────────────────────────────────────────────────
-    // CONFIG: change this to your Render backend URL
-    //         after you deploy (Step 4 in the guide).
-    // ─────────────────────────────────────────────────
-    const API_BASE = 'https://fsd-a8lo.onrender.com/api';
+  <button class="btn-login" id="loginBtn">
+    <div class="spinner" id="spinner"></div>
+    Access Dashboard
+  </button>
 
-    // ── Toast ────────────────────────────────────────
-    function showToast(message, type = 'success') {
-      const toast = document.getElementById('toast');
-      toast.textContent = (type === 'success' ? '✓ ' : '✗ ') + message;
-      toast.className = `${type} show`;
-      setTimeout(() => { toast.className = ''; }, 3000);
-    }
+  <div class="register-link">
+    No account? <a href="register.html">Register here</a>
+  </div>
 
-    // ── Spinner ──────────────────────────────────────
-    function setLoading(on) {
-      const btn = document.getElementById('submitButton');
-      const spinner = document.getElementById('spinner');
-      btn.disabled = on;
-      spinner.classList.toggle('visible', on);
-    }
+  <div class="security-note">
+    <span>🔒</span>
+    Secured connection · Authorized personnel only · NCDMB/SEPLAT HCD Programme
+  </div>
 
-    // ── Validation ───────────────────────────────────
-    function setError(inputEl, msgEl, show) {
-      inputEl.classList.toggle('error', show);
-      msgEl.classList.toggle('visible', show);
-    }
+</div>
 
-    function validateForm(form) {
-      let valid = true;
+<div id="toast"></div>
 
-      const fullname = form.elements.fullname;
-      const school   = form.elements.School;
-      const level    = form.elements.level;
-      const email    = form.elements.email;
-      const password = form.elements.password;
-      const terms    = form.elements.terms;
-      const payment  = form.elements.paymentMethod;
+<script>
+  // ── CONFIG ────────────────────────────────────────────
+  const API_BASE = 'https://fsd-a8lo.onrender.com/api';
 
-      const nameErr = !fullname.value.trim();
-      setError(fullname, document.getElementById('err-fullname'), nameErr);
-      if (nameErr) valid = false;
+  // ── Toast ─────────────────────────────────────────────
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = (type === 'success' ? '✓ ' : '✗ ') + msg;
+    t.className = `${type} show`;
+    setTimeout(() => { t.className = ''; }, 3200);
+  }
 
-      const schoolErr = !school.value.trim();
-      setError(school, document.getElementById('err-school'), schoolErr);
-      if (schoolErr) valid = false;
+  function setLoading(on) {
+    document.getElementById('loginBtn').disabled = on;
+    document.getElementById('spinner').classList.toggle('visible', on);
+  }
 
-      const levelErr = !level.value.trim();
-      setError(level, document.getElementById('err-level'), levelErr);
-      if (levelErr) valid = false;
+  // ── Login ─────────────────────────────────────────────
+  async function handleLogin() {
+    const email    = document.getElementById('email');
+    const password = document.getElementById('password');
+    let valid = true;
 
-      const emailErr = !email.value.trim() || !email.value.includes('@');
-      setError(email, document.getElementById('err-email'), emailErr);
-      if (emailErr) valid = false;
+    const emailErr = !email.value.trim() || !email.value.includes('@');
+    email.classList.toggle('error', emailErr);
+    document.getElementById('err-email').classList.toggle('visible', emailErr);
+    if (emailErr) valid = false;
 
-      const passErr = !password.value.trim() || password.value.trim().length < 6;
-      setError(password, document.getElementById('err-password'), passErr);
-      if (passErr) valid = false;
+    const passErr = !password.value.trim();
+    password.classList.toggle('error', passErr);
+    document.getElementById('err-password').classList.toggle('visible', passErr);
+    if (passErr) valid = false;
 
-      const paymentErr = !payment.value;
-      document.getElementById('err-payment').classList.toggle('visible', paymentErr);
-      if (paymentErr) valid = false;
+    if (!valid) return;
 
-      const termsErr = !terms.checked;
-      document.getElementById('err-terms').classList.toggle('visible', termsErr);
-      if (termsErr) valid = false;
+    setLoading(true);
+    try {
+      const res  = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.value.trim(), password: password.value }),
+      });
+      const json = await res.json();
 
-      return valid;
-    }
-
-    // ── Render table rows ────────────────────────────
-    function renderRow(student, index) {
-      const tbody = document.getElementById('tableBody');
-      const row = tbody.insertRow();
-      row.setAttribute('data-id', student._id);
-      row.classList.add('new-row');
-      setTimeout(() => row.classList.remove('new-row'), 600);
-
-      row.insertCell(0).textContent = index;
-      row.insertCell(1).textContent = student.fullname;
-      row.insertCell(2).textContent = student.school;
-      row.insertCell(3).textContent = student.level;
-      row.insertCell(4).textContent = student.email;
-      row.insertCell(5).innerHTML = '<span class="pw-mask">••••••••</span>';
-      row.insertCell(6).innerHTML = student.acceptedTerms
-        ? '<span class="badge badge-yes">Yes</span>'
-        : '<span class="badge badge-no">No</span>';
-      row.insertCell(7).textContent = student.paymentMethod;
-
-      const actionCell = row.insertCell(8);
-      const delBtn = document.createElement('button');
-      delBtn.className = 'btn-delete';
-      delBtn.textContent = 'Delete';
-      delBtn.onclick = () => deleteStudent(student._id, row);
-      actionCell.appendChild(delBtn);
-    }
-
-    function refreshNumbers() {
-      const rows = document.querySelectorAll('#tableBody tr[data-id]');
-      rows.forEach((row, i) => { row.cells[0].textContent = i + 1; });
-    }
-
-    // ── Load all students on page load ───────────────
-    async function loadStudents() {
-      try {
-        const res = await fetch(`${API_BASE}/students`);
-        const json = await res.json();
-
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '';
-
-        if (!json.data || json.data.length === 0) {
-          tbody.innerHTML = '<tr id="emptyRow"><td colspan="9" class="empty-state">No records yet. Fill the form above to add one.</td></tr>';
-          return;
-        }
-
-        json.data.forEach((student, i) => renderRow(student, i + 1));
-      } catch (err) {
-        document.getElementById('tableBody').innerHTML =
-          '<tr><td colspan="9" class="empty-state">⚠ Could not load records. Is the server running?</td></tr>';
+      if (!res.ok) {
+        showToast(json.error || 'Login failed', 'error');
+        return;
       }
+
+      // Save token and user info
+      localStorage.setItem('opsview_token', json.token);
+      localStorage.setItem('opsview_user', JSON.stringify(json.user));
+
+      showToast('Access granted — redirecting…');
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
+
+    } catch (err) {
+      showToast('Network error — is the server running?', 'error');
+    } finally {
+      setLoading(false);
     }
+  }
 
-    // ── Submit form → POST to API ────────────────────
-    async function insertData() {
-      const schoolForm = document.getElementById('schoolForm');
-      if (!validateForm(schoolForm)) return;
+  document.getElementById('loginBtn').addEventListener('click', handleLogin);
 
-      const payload = {
-        fullname:      schoolForm.elements.fullname.value.trim(),
-        school:        schoolForm.elements.School.value.trim(),
-        level:         schoolForm.elements.level.value.trim(),
-        email:         schoolForm.elements.email.value.trim(),
-        password:      schoolForm.elements.password.value,
-        paymentMethod: schoolForm.elements.paymentMethod.value,
-        acceptedTerms: schoolForm.elements.terms.checked,
-      };
+  // Enter key support
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
 
-      setLoading(true);
-
-      try {
-        const res = await fetch(`${API_BASE}/students`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-
-        const json = await res.json();
-
-        if (!res.ok) {
-          showToast(json.error || 'Failed to save record', 'error');
-          return;
-        }
-
-        // Remove empty state row if present
-        document.getElementById('emptyRow')?.remove();
-
-        // Count current rows to set correct index
-        const currentCount = document.querySelectorAll('#tableBody tr[data-id]').length;
-        renderRow(json.data, currentCount + 1);
-
-        // Clear form
-        schoolForm.reset();
-        showToast('Record added successfully');
-
-      } catch (err) {
-        showToast('Network error — is the server running?', 'error');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    // ── Delete student ────────────────────────────────
-    async function deleteStudent(id, rowEl) {
-      if (!confirm('Delete this record?')) return;
-
-      try {
-        const res = await fetch(`${API_BASE}/students/${id}`, { method: 'DELETE' });
-        const json = await res.json();
-
-        if (!res.ok) {
-          showToast(json.error || 'Delete failed', 'error');
-          return;
-        }
-
-        rowEl.remove();
-        refreshNumbers();
-
-        if (document.querySelectorAll('#tableBody tr[data-id]').length === 0) {
-          document.getElementById('tableBody').innerHTML =
-            '<tr id="emptyRow"><td colspan="9" class="empty-state">No records yet. Fill the form above to add one.</td></tr>';
-        }
-
-        showToast('Record deleted');
-      } catch (err) {
-        showToast('Network error during delete', 'error');
-      }
-    }
-
-    // ── Event Listeners ──────────────────────────────
-    document.getElementById('submitButton').addEventListener('click', insertData);
-
-    ['fullname', 'school', 'level', 'email', 'password'].forEach(name => {
-      const el = document.getElementById(name);
-      if (el) el.addEventListener('input', () => el.classList.remove('error'));
+  // Clear errors on input
+  ['email','password'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      document.getElementById(id).classList.remove('error');
     });
+  });
 
-    // Load records when page opens
-    loadStudents();
-  </script>
+  // Redirect if already logged in
+  if (localStorage.getItem('opsview_token')) {
+    window.location.href = 'dashboard.html';
+  }
+</script>
 </body>
-
 </html>

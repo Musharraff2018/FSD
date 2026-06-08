@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SEPLAT OpsView — Field Operations Dashboard</title>
+  <style>
+    :root {
+      --navy: #0b1c3d;
+      --navy-mid: #122554;
+      --green: #00a859;
+      --green-light: #00c96b;
+      --orange: #f5821f;
+      --red: #e03030;
+      --yellow: #f5c518;
+      --white: #ffffff;
+      --gray: #c8d4e8;
+      --card-bg: #122554;
+      --card-border: #1e3a6e;
+      --text-muted: #8ca3c8;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      background: var(--navy-mid);
+      border-bottom: 2px solid var(--green);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .logo-area { display: flex; align-items: center; gap: 12px; }
+
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: var(--green);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+
+    .logo-text { font-size: 1.3rem; font-weight: 700; letter-spacing: 1px; }
+    .logo-text span { color: var(--green); }
+
+    .header-right { display: flex; align-items: center; gap: 1.5rem; }
+
+    .live-badge {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.78rem; color: var(--green-light);
+      font-weight: 600; letter-spacing: 1px;
+    }
+
+    .live-dot {
+      width: 8px; height: 8px;
+      background: var(--green-light);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+    }
+
+    .clock { font-size: 0.85rem; color: var(--gray); }
+
+    /* User info + logout */
+    .user-info {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.82rem; color: var(--gray);
+    }
+
+    .btn-logout {
+      padding: 6px 14px;
+      background: transparent;
+      border: 1px solid var(--red);
+      color: var(--red);
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .btn-logout:hover { background: var(--red); color: #fff; }
+
+    /* ===== MAIN LAYOUT ===== */
+    main { padding: 1.5rem 2rem; }
+
+    .section-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      margin-bottom: 0.8rem;
+      margin-top: 1.5rem;
+    }
+
+    /* ===== KPI ROW ===== */
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 1.2rem 1.4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: var(--green);
+      border-radius: 10px 0 0 10px;
+    }
+
+    .kpi-card.orange::before { background: var(--orange); }
+    .kpi-card.red::before    { background: var(--red); }
+    .kpi-card.yellow::before { background: var(--yellow); }
+
+    .kpi-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    .kpi-value { font-size: 2rem; font-weight: 700; line-height: 1; }
+    .kpi-card.orange .kpi-value { color: var(--orange); }
+    .kpi-card.red .kpi-value    { color: var(--red); }
+    .kpi-card.yellow .kpi-value { color: var(--yellow); }
+    .kpi-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem; }
+
+    /* ===== RIG STATUS ===== */
+    .rig-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+
+    .rig-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .rig-card:hover { border-color: var(--green); }
+    .rig-info { flex: 1; }
+    .rig-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 3px; }
+    .rig-location { font-size: 0.72rem; color: var(--text-muted); }
+    .rig-detail { font-size: 0.72rem; color: var(--gray); margin-top: 4px; }
+
+    .status-badge {
+      padding: 4px 10px; border-radius: 20px;
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.5px; text-transform: uppercase;
+    }
+
+    .status-active      { background: rgba(0,168,89,0.15);  color: var(--green-light); border: 1px solid var(--green); }
+    .status-idle        { background: rgba(245,130,31,0.15); color: var(--orange);      border: 1px solid var(--orange); }
+    .status-maintenance { background: rgba(224,48,48,0.15);  color: var(--red);         border: 1px solid var(--red); }
+
+    /* ===== PRODUCTION & SAFETY ===== */
+    .two-col { display: grid; grid-template-columns: 1.6fr 1fr; gap: 1rem; }
+
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 1.2rem;
+    }
+
+    .panel-title {
+      font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase;
+      color: var(--gray); margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .panel-title-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+
+    .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 120px; }
+    .bar-group { display: flex; flex-direction: column; align-items: center; flex: 1; gap: 4px; }
+    .bar-wrap  { flex: 1; width: 100%; display: flex; align-items: flex-end; }
+
+    .bar {
+      width: 100%; background: var(--green);
+      border-radius: 4px 4px 0 0;
+      transition: height 0.8s ease;
+      position: relative;
+    }
+
+    .bar:hover { background: var(--green-light); }
+
+    .bar-val {
+      position: absolute; top: -18px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.65rem; color: var(--green-light); white-space: nowrap;
+    }
+
+    .bar-label { font-size: 0.65rem; color: var(--text-muted); }
+
+    .checklist { display: flex; flex-direction: column; gap: 8px; }
+
+    .check-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px; border-radius: 6px;
+      background: rgba(255,255,255,0.03);
+      cursor: pointer; transition: background 0.2s;
+    }
+
+    .check-item:hover { background: rgba(0,168,89,0.08); }
+    .check-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; }
+    .check-text { font-size: 0.8rem; flex: 1; }
+    .check-item.checked .check-text { text-decoration: line-through; color: var(--text-muted); }
+
+    .check-priority { font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; }
+    .priority-high  { background: rgba(224,48,48,0.2);   color: var(--red); }
+    .priority-med   { background: rgba(245,130,31,0.2);  color: var(--orange); }
+    .priority-low   { background: rgba(0,168,89,0.2);    color: var(--green-light); }
+
+    .checklist-footer {
+      margin-top: 10px; font-size: 0.72rem; color: var(--text-muted);
+      display: flex; justify-content: space-between;
+    }
+
+    #completion-bar-wrap { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 6px; }
+    #completion-bar      { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.4s ease; }
+
+    /* ===== ALERTS ===== */
+    .alerts { display: flex; flex-direction: column; gap: 8px; }
+
+    .alert-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 10px 12px; border-radius: 8px;
+      border-left: 3px solid; font-size: 0.8rem;
+    }
+
+    .alert-critical { background: rgba(224,48,48,0.1);   border-color: var(--red); }
+    .alert-warning  { background: rgba(245,130,31,0.1);  border-color: var(--orange); }
+    .alert-info     { background: rgba(0,168,89,0.1);    border-color: var(--green); }
+
+    .alert-icon  { font-size: 1rem; }
+    .alert-body  { flex: 1; }
+    .alert-title { font-weight: 700; margin-bottom: 2px; }
+    .alert-desc  { color: var(--text-muted); font-size: 0.72rem; }
+    .alert-time  { font-size: 0.65rem; color: var(--text-muted); white-space: nowrap; }
+
+    /* ===== STUDENT TABLE SECTION ===== */
+    .table-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 1.2rem;
+      overflow-x: auto;
+    }
+
+    .table-panel-header {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    table { border-collapse: collapse; width: 100%; font-size: 0.82rem; }
+
+    th {
+      background: rgba(0,168,89,0.15);
+      color: var(--green-light);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 10px 12px;
+      text-align: left;
+      white-space: nowrap;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(30,58,110,0.5);
+      color: var(--gray);
+      vertical-align: middle;
+    }
+
+    tr:hover td { background: rgba(0,168,89,0.04); }
+
+    .btn-delete {
+      background: none;
+      border: 1px solid var(--red);
+      color: var(--red);
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .btn-delete:hover { background: var(--red); color: #fff; }
+
+    .badge-yes { background: rgba(0,168,89,0.2);   color: var(--green-light); padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+    .badge-no  { background: rgba(224,48,48,0.2);  color: var(--red);         padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+
+    .empty-state { text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.85rem; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      text-align: center; padding: 1rem;
+      font-size: 0.72rem; color: var(--text-muted);
+      border-top: 1px solid var(--card-border);
+      margin-top: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .kpi-row  { grid-template-columns: repeat(2, 1fr); }
+      .rig-grid { grid-template-columns: 1fr; }
+      .two-col  { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo-area">
+    <div class="logo-icon">⛽</div>
+    <div class="logo-text">SEPLAT <span>OpsView</span></div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      LIVE MONITOR
+    </div>
+    <div class="clock" id="clock">--:--:--</div>
+    <div class="user-info">
+      <span id="userName">--</span>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- KPI CARDS -->
+  <div class="section-title">Today's Operations Summary</div>
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Total Production</div>
+      <div class="kpi-value" style="color: var(--green);">48,720</div>
+      <div class="kpi-sub">Barrels/day · ↑ 3.2% vs yesterday</div>
+    </div>
+    <div class="kpi-card orange">
+      <div class="kpi-label">Active Rigs</div>
+      <div class="kpi-value">4 / 6</div>
+      <div class="kpi-sub">2 rigs offline today</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Open Incidents</div>
+      <div class="kpi-value">2</div>
+      <div class="kpi-sub">1 critical · 1 warning</div>
+    </div>
+    <div class="kpi-card yellow">
+      <div class="kpi-label">Safety Compliance</div>
+      <div class="kpi-value">87%</div>
+      <div class="kpi-sub">Target: 100% — 3 checks pending</div>
+    </div>
+  </div>
+
+  <!-- RIG STATUS -->
+  <div class="section-title">Rig Status Monitor</div>
+  <div class="rig-grid">
+    <div class="rig-card">
+      <div class="rig-info">
+        <div class="rig-name">🛢 Rig SEPLAT-01</div>
+        <div class="rig-location">Sapele Field, Delta State</div>
+        <div class="rig-detail">Output: 12,400 bbl/day</div>
+      </div>
+      <span class="status-badge status-active">Active</span>
+    </div>
+    <div class="rig-card">
+      <div class="rig-info">
+        <div class="rig-name">🛢 Rig SEPLAT-02</div>
+        <div class="rig-location">Amukpe Field, Delta State</div>
+        <div class="rig-detail">Output: 11,800 bbl/day</div>
+      </div>
+      <span class="status-badge status-active">Active</span>
+    </div>
+    <div class="rig-card">
+      <div class="rig-info">
+        <div class="rig-name">🛢 Rig SEPLAT-03</div>
+        <div class="rig-location">Oben Field, Edo State</div>
+        <div class="rig-detail">Output: 9,320 bbl/day</div>
+      </div>
+      <span class="status-badge status-active">Active</span>
+    </div>
+    <div class="rig-card">
+      <div class="rig-info">
+        <div class="rig-name">🛢 Rig SEPLAT-04</div>
+        <div class="rig-location">Ovhor Field, Delta State</div>
+        <div class="rig-detail">Output: 15,200 bbl/day</div>
+      </div>
+      <span class="status-badge status-active">Active</span>
+    </div>
+    <div class="rig-card">
+      <div class="rig-info">
+        <div class="rig-name">🛢 Rig SEPLAT-05</div>
+        <div class="rig-location">Utorogu Field, Delta State</div>
+        <div class="rig-detail">Scheduled: Resume in 6h</div>
+      </div>
+      <span class="status-badge status-idle">Idle</span>
+    </div>
+    <div class="rig-card">
+      <div class="rig-info">
+        <div class="rig-name">🛢 Rig SEPLAT-06</div>
+        <div class="rig-location">Jesse Field, Delta State</div>
+        <div class="rig-detail">Est. Repair: 48 hours</div>
+      </div>
+      <span class="status-badge status-maintenance">Maintenance</span>
+    </div>
+  </div>
+
+  <!-- PRODUCTION CHART + SAFETY CHECKLIST -->
+  <div class="section-title">Production Trend & Safety Compliance</div>
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-title">
+        <div class="panel-title-dot"></div>
+        Weekly Production Output (Barrels/Day × 1000)
+      </div>
+      <div class="bar-chart" id="barChart"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">
+        <div class="panel-title-dot" style="background: var(--orange);"></div>
+        Daily Safety Checklist
+      </div>
+      <div class="checklist" id="checklist">
+        <div class="check-item" onclick="toggleCheck(this)">
+          <input type="checkbox">
+          <span class="check-text">Pre-operation wellhead inspection</span>
+          <span class="check-priority priority-high">HIGH</span>
+        </div>
+        <div class="check-item checked" onclick="toggleCheck(this)">
+          <input type="checkbox" checked>
+          <span class="check-text">Emergency shutdown valve test</span>
+          <span class="check-priority priority-high">HIGH</span>
+        </div>
+        <div class="check-item checked" onclick="toggleCheck(this)">
+          <input type="checkbox" checked>
+          <span class="check-text">PPE compliance — all personnel</span>
+          <span class="check-priority priority-high">HIGH</span>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)">
+          <input type="checkbox">
+          <span class="check-text">Gas leak sensor calibration</span>
+          <span class="check-priority priority-med">MED</span>
+        </div>
+        <div class="check-item checked" onclick="toggleCheck(this)">
+          <input type="checkbox" checked>
+          <span class="check-text">Drill floor housekeeping</span>
+          <span class="check-priority priority-low">LOW</span>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)">
+          <input type="checkbox">
+          <span class="check-text">Environmental spill report filed</span>
+          <span class="check-priority priority-med">MED</span>
+        </div>
+      </div>
+      <div class="checklist-footer">
+        <span id="check-count">3 / 6 complete</span>
+        <span id="check-pct">50%</span>
+      </div>
+      <div id="completion-bar-wrap">
+        <div id="completion-bar" style="width: 50%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALERTS -->
+  <div class="section-title">Active Alerts & Notifications</div>
+  <div class="alerts">
+    <div class="alert-item alert-critical">
+      <div class="alert-icon">🚨</div>
+      <div class="alert-body">
+        <div class="alert-title">CRITICAL — Rig SEPLAT-06 Downtime</div>
+        <div class="alert-desc">Hydraulic pump failure detected. Rig offline. Maintenance team dispatched. ETA 48 hours.</div>
+      </div>
+      <div class="alert-time">08:14 AM</div>
+    </div>
+    <div class="alert-item alert-warning">
+      <div class="alert-icon">⚠️</div>
+      <div class="alert-body">
+        <div class="alert-title">WARNING — Gas leak sensor offline (Rig SEPLAT-04)</div>
+        <div class="alert-desc">Sensor #4B not responding. Manual checks in progress. Calibration scheduled for 2:00 PM.</div>
+      </div>
+      <div class="alert-time">10:32 AM</div>
+    </div>
+    <div class="alert-item alert-info">
+      <div class="alert-icon">✅</div>
+      <div class="alert-body">
+        <div class="alert-title">INFO — Rig SEPLAT-02 Safety Audit Passed</div>
+        <div class="alert-desc">Q2 safety inspection completed successfully. All 14 checkpoints cleared. Report filed.</div>
+      </div>
+      <div class="alert-time">09:00 AM</div>
+    </div>
+  </div>
+
+
+
+</main>
+
+<footer>
+  SEPLAT OpsView v1.0 &nbsp;|&nbsp; Built with HTML, CSS & JavaScript &nbsp;|&nbsp; NCDMB/SEPLAT Human Capacity Development Programme &nbsp;|&nbsp; 2025
+</footer>
+
+<script>
+  // ── Auth Guard — redirect to login if no token ────────
+  const token = localStorage.getItem('opsview_token');
+  if (!token) {
+    window.location.href = 'login.html';
+  }
+
+  // Show logged-in user name
+  const user = JSON.parse(localStorage.getItem('opsview_user') || '{}');
+  if (user.fullname) {
+    document.getElementById('userName').textContent = '👤 ' + user.fullname;
+  }
+
+  // ── Logout ────────────────────────────────────────────
+  function logout() {
+    localStorage.removeItem('opsview_token');
+    localStorage.removeItem('opsview_user');
+    window.location.href = 'login.html';
+  }
+
+  // ── Clock ─────────────────────────────────────────────
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const s = String(now.getSeconds()).padStart(2,'0');
+    document.getElementById('clock').textContent = `${h}:${m}:${s} NGT`;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // ── Bar Chart ─────────────────────────────────────────
+  const weekData = [
+    { day: 'Mon', val: 44.2 }, { day: 'Tue', val: 46.8 },
+    { day: 'Wed', val: 43.5 }, { day: 'Thu', val: 47.1 },
+    { day: 'Fri', val: 48.7 }, { day: 'Sat', val: 45.3 },
+    { day: 'Sun', val: 42.9 },
+  ];
+
+  const maxVal = Math.max(...weekData.map(d => d.val));
+  const chart  = document.getElementById('barChart');
+
+  weekData.forEach(d => {
+    const heightPct = (d.val / maxVal) * 100;
+    chart.innerHTML += `
+      <div class="bar-group">
+        <div class="bar-wrap">
+          <div class="bar" style="height: ${heightPct}%;">
+            <div class="bar-val">${d.val}k</div>
+          </div>
+        </div>
+        <div class="bar-label">${d.day}</div>
+      </div>
+    `;
+  });
+
+  // ── Safety Checklist ──────────────────────────────────
+  function toggleCheck(item) {
+    const cb = item.querySelector('input[type="checkbox"]');
+    cb.checked = !cb.checked;
+    item.classList.toggle('checked', cb.checked);
+    updateCheckStats();
+  }
+
+  function updateCheckStats() {
+    const all  = document.querySelectorAll('.check-item');
+    const done = document.querySelectorAll('.check-item.checked').length;
+    const pct  = Math.round((done / all.length) * 100);
+    document.getElementById('check-count').textContent = `${done} / ${all.length} complete`;
+    document.getElementById('check-pct').textContent   = `${pct}%`;
+    document.getElementById('completion-bar').style.width = pct + '%';
+  }
+
+
+</script>
+</body>
+</html>
